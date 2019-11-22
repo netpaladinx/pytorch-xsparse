@@ -5,4 +5,11 @@ if torch.cuda.is_available():
 
 
 def batch_diag(index, elems_max, col_max):
-    return torch_xsparse.batch_diag_cuda.batch_diag(index.contiguous(), elems_max, col_max)
+    index = index.contiguous().view(-1)
+
+    if index.is_cuda:
+        out, = torch_xsparse.batch_diag_cuda.batch_diag(index, elems_max, col_max)
+    else:
+        out = index
+
+    return out.view(2, -1)
